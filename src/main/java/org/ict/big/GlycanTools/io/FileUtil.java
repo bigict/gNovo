@@ -23,8 +23,23 @@ public class FileUtil {
         });  
         return fileArr;  
   
-    }  
-    
+    }
+    public static ArrayList<String> getGlycanDir(String pathStr){
+        ArrayList<String> result = new ArrayList<String>();
+        File file = new File(pathStr);
+        File[] tempList = file.listFiles();
+        if (tempList==null){
+//            System.out.print("Find no Glycan in this filepath!");
+            return null;
+        }
+        for(int i=0;i<tempList.length;i++){
+            if(tempList[i].isDirectory()){
+                String Fname= tempList[i].getName();
+                result.add(Fname);
+            }
+        }
+        return result;
+    }
     public static File[] getFilesByPathAndSuffix(String pathStr,  
             final String sufixStr) {  
         File path = new File(pathStr);  

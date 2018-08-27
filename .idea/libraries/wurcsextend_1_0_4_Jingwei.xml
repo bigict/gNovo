@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="wurcsextend-1.0.4-Jingwei">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/external-libs/wurcsextend-1.0.4-Jingwei.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

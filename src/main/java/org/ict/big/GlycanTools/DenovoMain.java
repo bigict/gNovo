@@ -9,6 +9,7 @@ import org.eurocarbdb.application.glycanbuilder.renderutil.GlycanRendererAWT;
 import org.ict.big.GlycanTools.annotation.denovo.DenovoEmuSetPrinter;
 import org.ict.big.GlycanTools.annotation.denovo.EnumrationalAnnotator;
 import org.ict.big.GlycanTools.debug.Print;
+import org.ict.big.GlycanTools.io.FileUtil;
 import org.ict.big.GlycanTools.io.GlycanImporter;
 import org.ict.big.GlycanTools.io.ReaderUtil;
 import org.ict.big.GlycanTools.options.DefaultMassOptions;
@@ -36,22 +37,29 @@ public class DenovoMain {
 //        "IgG_1835", "IgG_2040", "IgG_2070", "IgG_2081", "IgG_2244", "IgG_2285",
 //        "IgG_2401", "IgG_2605", "IgG_2850", "IgG_2966", "IgG_3213"}; // IgG
 
-    static String[] allGlycanNames = {"IgG_3213"}; //"Man5_test"
+    static ArrayList<String> allGlycanNames = new ArrayList<>();//"Man5_test"
 
     private static GlycanRenderer glycanRenderer = new GlycanRendererAWT();
     private static BuilderWorkspace builderWorkspace = new BuilderWorkspace(glycanRenderer);
 
     public static void main(String[] args) {
 //        MonosaccharideLibrary.test();
+        String inputPath="./input-spectra/";
+        String outputPath="./denovo-result/";
+        allGlycanNames= FileUtil.getGlycanDir(inputPath);
+        if (allGlycanNames==null || allGlycanNames.size()<1){
+            Print.pl("Find no Glycan in this filepath!");
+            return;
+        }
         for(String glycanName: allGlycanNames){
             Print.pl("GlycanName:"+glycanName);
-            String spectraFolderPath = "./input-spectra/Top5_jfs/0.1mv/"+glycanName;
+            String spectraFolderPath = inputPath+glycanName;
             String structureFilePath = "./structure-files/"+glycanName+".glycoct_condensed";
             if(!Files.exists(Paths.get(spectraFolderPath))){
                 continue;
             }
 
-            labelSpectraByEnum(spectraFolderPath, structureFilePath, glycanName);
+            labelSpectraByEnum(spectraFolderPath, structureFilePath, glycanName,outputPath);
         }
 //        String glycanStr = "freeEnd--??1D-GlcNAc,p(--??1D-GlcNAc,p--??1D-Man,p((--??1D-Man,p--??1D-GlcNAc,p--??1D-Gal,p/#zcleavage)--??1D-GlcNAc,p)--??1D-Man,p--??1D-GlcNAc,p--??1D-Gal,p--??2D-NeuAc,p)--??1L-Fuc,p$MONO,perMe,Na,0,freeEnd";
 //        GlycanImporter gi = new GlycanImporter(false);
@@ -68,7 +76,7 @@ public class DenovoMain {
 //        Print.pl(""+d);
     }
 
-    public static void labelSpectraByEnum(String spectraFolder, String glycanPath, String glycanName){
+    public static void labelSpectraByEnum(String spectraFolder, String glycanPath, String glycanName,String outputPath){
         ArrayList<PeakList> originalSpectra = ReaderUtil.readAllPeakList(spectraFolder, ".mzXML");
         ArrayList<PeakList> filteredSpectra = new ArrayList<PeakList>();
         PeakFilter peakFilter = new PeakFilter(0.01);
@@ -101,7 +109,7 @@ public class DenovoMain {
         FragmentComposition precursorComposition = annotator.annotate();
         DenovoEmuSetPrinter desp = new DenovoEmuSetPrinter(peakListTree, precursorComposition);
         try {
-            desp.writeToFile("./result-for-denovo/denovo_compositon_"+glycanName+".txt");
+            desp.writeToFile(outputPath+"denovo_compositon_"+glycanName+".txt");
         } catch (IOException e) {
             e.printStackTrace();
             Print.pl("Write file error!");
